@@ -1,0 +1,22 @@
+<resources>
+
+    <!--&lt;!&ndash;&lt;!&ndash; Base application theme. &ndash;&gt;&ndash;&gt;-->
+    <!--&lt;!&ndash;<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">&ndash;&gt;-->
+        <!--&lt;!&ndash;&lt;!&ndash; Customize your theme here. &ndash;&gt;&ndash;&gt;-->
+        <!--&lt;!&ndash;<item name="colorPrimary">@color/colorPrimary</item>&ndash;&gt;-->
+        <!--&lt;!&ndash;<item name="colorPrimaryDark">@color/colorPrimaryDark</item>&ndash;&gt;-->
+        <!--&lt;!&ndash;<item name="colorAccent">@color/colorAccent</item>&ndash;&gt;-->
+    <!--</style>-->
+
+    <!-- inherit from the material theme -->
+
+    <style name="AppTheme" parent="android:Theme.Material">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:colorControlActivated">@android:color/darker_gray</item>
+        <item name="android:colorActivatedHighlight">@android:color/darker_gray</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>
