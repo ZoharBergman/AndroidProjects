@@ -30,6 +30,7 @@ public class Album extends Activity implements View.OnClickListener {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
+
     private Uri fileUri;
     Button btnCamera;
     static TextView txtAlbumName;
