@@ -1,0 +1,5 @@
+git clone [project URL]
+git add [all new files and directories]
+git commit -m "comment"
+git push origin master דחיפת הפרוייקט לענן
+git status 
