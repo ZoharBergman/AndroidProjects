@@ -30,7 +30,6 @@ public class Album extends Activity implements View.OnClickListener {
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
 
-
     private Uri fileUri;
     Button btnCamera;
     static TextView txtAlbumName;
@@ -48,6 +47,7 @@ public class Album extends Activity implements View.OnClickListener {
         txtAlbumName = (TextView) findViewById(R.id.act_album_txtAlbumName);
         btnCamera = (Button) findViewById(R.id.act_album_btnStartCamera);
 
+        // Setting the album name from shared preference
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE);
         String albumName = sharedPref.getString(getString(R.string.album_name), "");
         txtAlbumName.setText(albumName);
@@ -91,27 +91,13 @@ public class Album extends Activity implements View.OnClickListener {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data");
-
-            // Going to the Picture activity
-            Intent intentPicture = new Intent(this, Picture.class);
-//            intentPicture.putExtra(String.valueOf(R.string.image), imageBitmap);
-            intentPicture.putExtra(String.valueOf(R.string.image), fileUri);
-            startActivity(intentPicture);
-            finish();
-        }
-    }
-
     public void getPic(){
         // create Intent to take a picture and return control to the calling application
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
+        // create a file to save the image
+        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 
         // start the image capture Intent
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
@@ -122,12 +108,23 @@ public class Album extends Activity implements View.OnClickListener {
         return Uri.fromFile(getOutputMediaFile(type));
     }
 
-    /** Create a File for saving an image or video */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Going to the Picture activity
+            Intent intentPicture = new Intent(this, Picture.class);
+            intentPicture.putExtra(getString(R.string.image), fileUri);
+            startActivity(intentPicture);
+            finish();
+        }
+    }
+
     private static File getOutputMediaFile(int type){
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // Getting the external storage directory
-            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
+            File mediaStorageDir = new File(
+                    Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES) + File.separator + "MyCameraApp" ,
+                    txtAlbumName.getText().toString());
 
             // Create the storage directory if it does not exist
             if (!mediaStorageDir.exists()) {
@@ -142,7 +139,7 @@ public class Album extends Activity implements View.OnClickListener {
             File mediaFile;
             if (type == MEDIA_TYPE_IMAGE) {
                 mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                        "IMG_" + txtAlbumName.getText().toString() + "_" + timeStamp + ".jpg");
+                        txtAlbumName.getText().toString() + File.separator + "IMG_" + "_" + timeStamp + ".jpg");
             } else if (type == MEDIA_TYPE_VIDEO) {
                 mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                         "VID_" + txtAlbumName.getText().toString() + "_" + timeStamp + ".mp4");
@@ -165,6 +162,30 @@ public class Album extends Activity implements View.OnClickListener {
         values.put(MediaStore.MediaColumns.DATA, filePath);
 
         context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+    }
+
+    public String getPath(){
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            // Getting the external storage directory
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
+
+            // Create the storage directory if it does not exist
+            if (!mediaStorageDir.exists()) {
+                if (!mediaStorageDir.mkdirs()) {
+                    Log.d("MyCameraApp", "failed to create directory");
+                    return null;
+                }
+            }
+
+            // Create a media file name
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String path = mediaStorageDir.getPath() + File.separator + "IMG_" +
+                          txtAlbumName.getText().toString() + "_" + timeStamp + ".jpg";
+
+            return path;
+        }
+        return null;
     }
 
     @Override

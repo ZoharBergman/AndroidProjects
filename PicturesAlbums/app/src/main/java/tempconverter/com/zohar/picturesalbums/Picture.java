@@ -27,41 +27,45 @@ public class Picture extends Activity {
         try {
 //            Bitmap imageBitmap = (Bitmap) getIntent().getExtras().get(String.valueOf(R.string.image));
             image = (ImageView) findViewById(R.id.act_picture_image);
-            Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
-            imageBitmap = setOrientation(imageBitmap);
-            image.setImageBitmap(imageBitmap);
+            fileUri = (Uri) getIntent().getExtras().get(getString(R.string.image));
+//            Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
+            Bitmap bm = setOrientation();
+            image.setImageBitmap(bm);
+//            image.setImageURI(fileUri);
         }
         catch (Exception e){
             Log.e("Put image", e.getMessage());
         }
     }
 
-    public Bitmap setOrientation(Bitmap bitmap){
+    public Bitmap setOrientation(){
         try {
             ExifInterface ei = new ExifInterface(fileUri.getPath());
             int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED);
+            Bitmap bm = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
 
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotateImage(bitmap, 90);
+                    bm = rotateImage(bm, 90);
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotateImage(bitmap, 180);
+                    bm = rotateImage(bm, 180);
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotateImage(bitmap, 270);
+                    bm = rotateImage(bm, 270);
                     break;
                 case ExifInterface.ORIENTATION_NORMAL:
                 default:
                     break;
             }
+
+            return bm;
         }
         catch (Exception ex){
             Log.e("URI", ex.getMessage());
         }
-
-        return bitmap;
+        return null;
     }
 
     public static Bitmap rotateImage(Bitmap source, float angle) {
