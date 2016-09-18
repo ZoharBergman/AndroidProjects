@@ -2,12 +2,10 @@ package tempconverter.com.zohar.picturesalbums;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
@@ -18,13 +16,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Album extends Activity implements View.OnClickListener {
+public class Album extends Activity implements View.OnClickListener{
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int REQUEST_CAMERA_RESULT=201;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -33,6 +30,7 @@ public class Album extends Activity implements View.OnClickListener {
     private Uri fileUri;
     Button btnCamera;
     static TextView txtAlbumName;
+    static String appName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +41,8 @@ public class Album extends Activity implements View.OnClickListener {
     }
 
     public void bindUI(){
+        appName = getString(R.string.app_name);
+
         // Getting the widgets
         txtAlbumName = (TextView) findViewById(R.id.act_album_txtAlbumName);
         btnCamera = (Button) findViewById(R.id.act_album_btnStartCamera);
@@ -70,25 +70,26 @@ public class Album extends Activity implements View.OnClickListener {
     }
 
     public void startCamera(){
+        if(checkPermission())
+            getPic();
+        else {
+            // Asking a permission
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_CAMERA_RESULT);
+        }
+    }
+
+    public boolean checkPermission() {
         // Checking if the version of the cellphone is 23+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             // In case the version is 23+, we should ask from the user a permission to use the camera
             // Checking if the permission was already granted
-            if(Album.this.checkSelfPermission(Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED){
-                // Get a pic
-                getPic();
-            }else{
-                // Asking a permission
-                if(shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)){
-                    Toast.makeText(Album.this,"Your Permission is needed to get access the camera",Toast.LENGTH_LONG).show();
-                }
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_CAMERA_RESULT);
-            }
+            if (Album.this.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                Album.this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                Album.this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                return false;
         }
-        else{
-            // In case the version is 22-, just go to the camera
-            getPic();
-        }
+        return true;
     }
 
     public void getPic(){
@@ -122,14 +123,23 @@ public class Album extends Activity implements View.OnClickListener {
     private static File getOutputMediaFile(int type){
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // Getting the external storage directory
-            File mediaStorageDir = new File(
-                    Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES) + File.separator + "MyCameraApp" ,
-                    txtAlbumName.getText().toString());
+            File mediaStorageDir = new File( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES),
+                                             "PicturesAlbum");
+
+            // Create the storage directory (if it does not exist) of the a
+            if (!mediaStorageDir.exists()) {
+                if (!mediaStorageDir.mkdirs()) {
+                    Log.d("Create directory", "failed to create directory");
+                    return null;
+                }
+            }
+
+            mediaStorageDir = new File(mediaStorageDir.getPath(), txtAlbumName.getText().toString());
 
             // Create the storage directory if it does not exist
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdirs()) {
-                    Log.d("MyCameraApp", "failed to create directory");
+                    Log.d("Create directory", "failed to create directory");
                     return null;
                 }
             }
@@ -138,8 +148,7 @@ public class Album extends Activity implements View.OnClickListener {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             File mediaFile;
             if (type == MEDIA_TYPE_IMAGE) {
-                mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                        txtAlbumName.getText().toString() + File.separator + "IMG_" + "_" + timeStamp + ".jpg");
+                mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + "_" + timeStamp + ".jpg");
             } else if (type == MEDIA_TYPE_VIDEO) {
                 mediaFile = new File(mediaStorageDir.getPath() + File.separator +
                         "VID_" + txtAlbumName.getText().toString() + "_" + timeStamp + ".mp4");
@@ -150,41 +159,6 @@ public class Album extends Activity implements View.OnClickListener {
             return mediaFile;
         }
 
-        return null;
-    }
-
-    public static void addImageToGallery(final String filePath, final Context context) {
-
-        ContentValues values = new ContentValues();
-
-        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.MediaColumns.DATA, filePath);
-
-        context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-    }
-
-    public String getPath(){
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            // Getting the external storage directory
-            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES), "MyCameraApp");
-
-            // Create the storage directory if it does not exist
-            if (!mediaStorageDir.exists()) {
-                if (!mediaStorageDir.mkdirs()) {
-                    Log.d("MyCameraApp", "failed to create directory");
-                    return null;
-                }
-            }
-
-            // Create a media file name
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String path = mediaStorageDir.getPath() + File.separator + "IMG_" +
-                          txtAlbumName.getText().toString() + "_" + timeStamp + ".jpg";
-
-            return path;
-        }
         return null;
     }
 

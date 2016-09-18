@@ -3,17 +3,24 @@ package tempconverter.com.zohar.picturesalbums;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
-public class Picture extends Activity {
-    ImageView image;
+import java.io.File;
+
+public class Picture extends AppCompatActivity {
+    Image image;
     Uri fileUri;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,13 +32,17 @@ public class Picture extends Activity {
 
     public void bindUI(){
         try {
-//            Bitmap imageBitmap = (Bitmap) getIntent().getExtras().get(String.valueOf(R.string.image));
-            image = (ImageView) findViewById(R.id.act_picture_image);
+            // Binding widgets
+            image = (Image) findViewById(R.id.act_picture_image);
+            toolbar = (Toolbar) findViewById(R.id.act_picture_toolbar);
+            toolbar.setTitle("");
+            setSupportActionBar(toolbar);
+
+            // Get Uri file
             fileUri = (Uri) getIntent().getExtras().get(getString(R.string.image));
-//            Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
+            // Setting the orientation of the image and put it in the ImageView
             Bitmap bm = setOrientation();
             image.setImageBitmap(bm);
-//            image.setImageURI(fileUri);
         }
         catch (Exception e){
             Log.e("Put image", e.getMessage());
@@ -41,9 +52,13 @@ public class Picture extends Activity {
     public Bitmap setOrientation(){
         try {
             ExifInterface ei = new ExifInterface(fileUri.getPath());
-            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_UNDEFINED);
-            Bitmap bm = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = false;
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            opts.inSampleSize = 2;
+            opts.inDither = true;
+            Bitmap bm = BitmapFactory.decodeFile(fileUri.getPath(), opts);
 
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
@@ -68,11 +83,10 @@ public class Picture extends Activity {
         return null;
     }
 
-    public static Bitmap rotateImage(Bitmap source, float angle) {
+    public Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix,
-                true);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     @Override
@@ -81,5 +95,43 @@ public class Picture extends Activity {
         Intent albumIntent = new Intent(this, Album.class);
         startActivity(albumIntent);
         finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        switch (id){
+            case R.id.action_Return:{
+                onBackPressed();
+                break;
+            }
+            case R.id.action_comment:{
+                break;
+            }
+            case R.id.action_delete:{
+                String path = fileUri.getPath();
+                File deletedFile = new File(path);
+                Boolean isDelete = deletedFile.delete();
+                onBackPressed();
+                break;
+            }
+            case R.id.action_location:{
+                break;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
