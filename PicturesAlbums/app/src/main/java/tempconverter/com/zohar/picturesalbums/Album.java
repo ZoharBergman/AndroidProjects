@@ -30,7 +30,7 @@ public class Album extends Activity implements View.OnClickListener{
     private Uri fileUri;
     Button btnCamera;
     static TextView txtAlbumName;
-    static String appName;
+    static String albumName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class Album extends Activity implements View.OnClickListener{
     }
 
     public void bindUI(){
-        appName = getString(R.string.app_name);
+        albumName = getString(R.string.album_name);
 
         // Getting the widgets
         txtAlbumName = (TextView) findViewById(R.id.act_album_txtAlbumName);
@@ -123,10 +123,10 @@ public class Album extends Activity implements View.OnClickListener{
     private static File getOutputMediaFile(int type){
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // Getting the external storage directory
-            File mediaStorageDir = new File( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES),
-                                             "PicturesAlbum");
+            File mediaStorageDir = new File(
+                    Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES), albumName);
 
-            // Create the storage directory (if it does not exist) of the a
+            // Create the storage directory (if it does not exist) of the application album
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdirs()) {
                     Log.d("Create directory", "failed to create directory");
@@ -136,7 +136,7 @@ public class Album extends Activity implements View.OnClickListener{
 
             mediaStorageDir = new File(mediaStorageDir.getPath(), txtAlbumName.getText().toString());
 
-            // Create the storage directory if it does not exist
+            // Create the storage directory of the new album
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdirs()) {
                     Log.d("Create directory", "failed to create directory");

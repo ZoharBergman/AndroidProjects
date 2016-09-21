@@ -1,6 +1,7 @@
 package tempconverter.com.zohar.picturesalbums;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +38,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             }
             case R.id.act_main_btnWatchAlbum:
+                goAlbumsList();
                 break;
         }
     }
@@ -45,5 +47,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         AlbumNameDialog dialog = new AlbumNameDialog(this);
         dialog.show();
 
+    }
+
+    public void goAlbumsList(){
+        Intent albumsListIntent = new Intent(this, AlbumsList.class);
+        this.startActivity(albumsListIntent);
+        this.finish();
     }
 }

@@ -3,29 +3,22 @@
 
     <item
         android:id="@+id/action_comment"
-        android:orderInCategory="4"
+        android:orderInCategory="1"
         android:title="Comment"
         android:icon="@mipmap/ic_insert_comment_white_48dp"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_location"
-        android:orderInCategory="3"
+        android:orderInCategory="2"
         android:title="location"
         android:icon="@mipmap/ic_location_on_white_48dp"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_delete"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:title="Delete"
         android:icon="@mipmap/ic_delete_white_48dp"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/action_Return"
-        android:orderInCategory="1"
-        android:title="Return"
-        android:icon="@mipmap/ic_keyboard_return_white_48dp"
         app:showAsAction="always" />
 </menu>

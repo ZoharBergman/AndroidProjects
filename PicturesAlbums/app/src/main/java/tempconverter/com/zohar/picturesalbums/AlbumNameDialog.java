@@ -82,12 +82,12 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
 
     public void CreateAlbum(String name){
         Intent albumIntent = new Intent(context, Album.class);
-        saveAlbumNameOnSharedPpreference(name);
+        saveAlbumNameOnSharedPreference(name);
         context.startActivity(albumIntent);
         ((Activity) context).finish();
     }
 
-    public void saveAlbumNameOnSharedPpreference(String albumName){
+    public void saveAlbumNameOnSharedPreference(String albumName){
         SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_pref), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(context.getString(R.string.album_name), albumName);

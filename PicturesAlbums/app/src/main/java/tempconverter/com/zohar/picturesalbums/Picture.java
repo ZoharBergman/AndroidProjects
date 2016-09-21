@@ -1,6 +1,5 @@
 package tempconverter.com.zohar.picturesalbums;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import java.io.File;
 
@@ -36,6 +34,7 @@ public class Picture extends AppCompatActivity {
             image = (Image) findViewById(R.id.act_picture_image);
             toolbar = (Toolbar) findViewById(R.id.act_picture_toolbar);
             toolbar.setTitle("");
+            toolbar.setNavigationIcon(R.mipmap.ic_keyboard_return_white_48dp);
             setSupportActionBar(toolbar);
 
             // Get Uri file
@@ -106,17 +105,9 @@ public class Picture extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         switch (id){
-            case R.id.action_Return:{
-                onBackPressed();
-                break;
-            }
             case R.id.action_comment:{
                 break;
             }
@@ -128,6 +119,10 @@ public class Picture extends AppCompatActivity {
                 break;
             }
             case R.id.action_location:{
+                break;
+            }
+            default:{
+                onBackPressed();
                 break;
             }
         }

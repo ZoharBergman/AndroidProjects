@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Pictures Albums</string>
-    <string name="album_name">album_name</string>
+    <string name="album_name">Pictures Albums</string>
     <string name="image">image</string>
     <string name="shared_pref">shared_pref</string>
+    <string name="title_activity_albums_list">AlbumsList</string>
 </resources>
