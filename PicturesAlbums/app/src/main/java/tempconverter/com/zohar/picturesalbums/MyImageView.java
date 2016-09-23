@@ -2,18 +2,20 @@ package tempconverter.com.zohar.picturesalbums;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * Created by Zohar on 17/09/2016.
  */
-public class Image extends ImageView {
+public class MyImageView extends ImageButton {
     private TextView location;
     private TextView comment;
 
-    public Image(Context context, AttributeSet attrs){
+    public MyImageView(Context context, AttributeSet attrs){
         super(context, attrs);
+        setBackground(null);
     }
 
     public void setLocation(String location){

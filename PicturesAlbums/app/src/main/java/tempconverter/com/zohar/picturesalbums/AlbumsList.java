@@ -14,7 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AlbumsList extends ListActivity implements  AdapterView.OnItemClickListener {
@@ -34,8 +36,9 @@ public class AlbumsList extends ListActivity implements  AdapterView.OnItemClick
         ListView list =  getListView();
 
         // Get all the albums from the storage
-        fileAlbums = getAlbums(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) +
-                                                                            File.separator + getString(R.string.album_name)));
+        fileAlbums = MyFiles.getFiles(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) +
+                                                                                File.separator + getString(R.string.album_name)));
+
         // Checking if there are albums
         if (fileAlbums.size() == 0) {
             Toast.makeText(this, "No albums are available", Toast.LENGTH_LONG).show();
@@ -52,17 +55,6 @@ public class AlbumsList extends ListActivity implements  AdapterView.OnItemClick
         }
     }
 
-    public ArrayList<File> getAlbums(File parentDir) {
-        ArrayList<File> inFiles = new ArrayList<>();
-        File[] files = parentDir.listFiles();
-        if (files != null) {
-            for (File file : files)
-                inFiles.add(file);
-        }
-
-        return inFiles;
-    }
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
         File fileAlbum = fileAlbums.get(i);
@@ -71,16 +63,9 @@ public class AlbumsList extends ListActivity implements  AdapterView.OnItemClick
 
     public void goToAlbum(String name){
         Intent albumIntent = new Intent(this, Album.class);
-        saveAlbumNameOnSharedPreference(name);
+        MySharedPreferences.saveOnsharedPreference(R.string.album_name, this, name);
         this.startActivity(albumIntent);
         this.finish();
-    }
-
-    public void saveAlbumNameOnSharedPreference(String albumName){
-        SharedPreferences sharedPref = this.getSharedPreferences(this.getString(R.string.shared_pref), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(this.getString(R.string.album_name), albumName);
-        editor.commit();
     }
 
     @Override

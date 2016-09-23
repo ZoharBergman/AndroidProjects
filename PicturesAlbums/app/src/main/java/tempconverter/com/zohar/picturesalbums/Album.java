@@ -2,23 +2,29 @@ package tempconverter.com.zohar.picturesalbums;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Album extends Activity implements View.OnClickListener{
@@ -26,9 +32,11 @@ public class Album extends Activity implements View.OnClickListener{
     private static final int REQUEST_CAMERA_RESULT=201;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+    public static final int IMAGE_TABLE_COLS_NUM = 3;
 
     private Uri fileUri;
     Button btnCamera;
+    TableLayout tabImages;
     static TextView txtAlbumName;
     static String albumName;
 
@@ -46,12 +54,15 @@ public class Album extends Activity implements View.OnClickListener{
         // Getting the widgets
         txtAlbumName = (TextView) findViewById(R.id.act_album_txtAlbumName);
         btnCamera = (Button) findViewById(R.id.act_album_btnStartCamera);
+        tabImages = (TableLayout) findViewById(R.id.act_album_tabImages);
 
         // Setting the album name from shared preference
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_pref), Context.MODE_PRIVATE);
-        String albumName = sharedPref.getString(getString(R.string.album_name), "");
+        String albumName = MySharedPreferences.getDataFromSharedPreference(R.string.album_name, this);
         txtAlbumName.setText(albumName);
         txtAlbumName.setPaintFlags(txtAlbumName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        // Setting images table
+        setImagesTable();
 
         // Setting click listener
         btnCamera.setOnClickListener(this);
@@ -66,6 +77,13 @@ public class Album extends Activity implements View.OnClickListener{
                 startCamera();
                 break;
             }
+            default:
+                // An image was picked
+                Intent intentPicture = new Intent(this, Picture.class);
+                intentPicture.putExtra(getString(R.string.image), ((MyImageButton)v).getFilePath());
+                startActivity(intentPicture);
+                finish();
+                break;
         }
     }
 
@@ -114,7 +132,7 @@ public class Album extends Activity implements View.OnClickListener{
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             // Going to the Picture activity
             Intent intentPicture = new Intent(this, Picture.class);
-            intentPicture.putExtra(getString(R.string.image), fileUri);
+            intentPicture.putExtra(getString(R.string.image), fileUri.getPath());
             startActivity(intentPicture);
             finish();
         }
@@ -169,5 +187,64 @@ public class Album extends Activity implements View.OnClickListener{
         startActivity(mainIntent);
         finish();
     }
+
+    public void setImagesTable(){
+        // Getting the images from directory
+        ArrayList<File> alImages = MyFiles.getFiles(new File
+                (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) +
+                        File.separator + getString(R.string.album_name) + File.separator + txtAlbumName.getText().toString()));
+
+        if(alImages == null)
+            return;
+
+        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        // Setting of the bitmap images
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = false;
+        opts.inPreferredConfig = Bitmap.Config.RGB_565;
+        opts.inSampleSize = 2;
+        opts.inDither = true;
+
+        int col = 0;
+        TableRow row = new TableRow(this);
+
+        for(File image : alImages){
+            try {
+                if (col%IMAGE_TABLE_COLS_NUM == 0) {
+                    // Creating row
+                    row = new TableRow(this);
+                    row.setLayoutParams(new TableRow.LayoutParams(layoutParams));
+                }
+
+                // Getting the image bitmap from file
+                Bitmap bm = MyFiles.getImageFromFile(image.getPath());
+
+                // Creating image button
+                MyImageButton imageButton = new MyImageButton(this, image.getPath());
+                imageButton.setImageBitmap(Bitmap.createScaledBitmap(bm, dpToPx(100), dpToPx(110), false));
+                imageButton.setBackground(null);
+                imageButton.setOnClickListener(this);
+
+                //  Adding image to row
+                row.addView(imageButton);
+
+                if((col%IMAGE_TABLE_COLS_NUM == (IMAGE_TABLE_COLS_NUM - 1)) || (col == alImages.size() - 1))
+                    tabImages.addView(row);
+
+                col++;
+            }
+            catch (Exception e){
+                Log.e("Reading image from file", e.getMessage());
+            }
+        }
+    }
+
+    public int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return px;
+    }
 }
+
 

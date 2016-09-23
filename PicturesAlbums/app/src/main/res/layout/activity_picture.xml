@@ -11,7 +11,7 @@
         android:id="@+id/act_picture_toolbar"
         android:background="@android:color/darker_gray" />
 
-    <tempconverter.com.zohar.picturesalbums.Image
+    <tempconverter.com.zohar.picturesalbums.MyImageView
         android:layout_width="600dp"
         android:layout_height="450dp"
 
