@@ -24,6 +24,7 @@ import java.util.Locale;
 public class Picture extends AppCompatActivity {
     MyImageView image;
     EditText etComment;
+    EditText etLocation;
     String imagePath;
     Toolbar toolbar;
 
@@ -42,6 +43,7 @@ public class Picture extends AppCompatActivity {
             // Binding widgets
             image = (MyImageView) findViewById(R.id.act_picture_image);
             etComment = (EditText) findViewById(R.id.act_picture_etComment);
+            etLocation = (EditText) findViewById(R.id.act_picture_etLocation);
             toolbar = (Toolbar) findViewById(R.id.act_picture_toolbar);
 
             // Setting toolbar
@@ -49,13 +51,16 @@ public class Picture extends AppCompatActivity {
             toolbar.setNavigationIcon(R.mipmap.ic_keyboard_return_white_48dp);
             setSupportActionBar(toolbar);
 
-            // Setting keyboard
-            new KeyboardSetting(this, findViewById(R.id.act_picture));
-
-            // Get file path
+            // Setting image
             imagePath = (String) getIntent().getExtras().get(getString(R.string.image));
             Bitmap bm = drawTextToBitmap(MyFiles.getImageFromFile(imagePath), MyFiles.getFileDate(imagePath));
             image.setImageBitmap(bm);
+
+            // Setting image data (location and comment)
+            getImageData();
+
+            // Setting keyboard
+            new KeyboardSetting(this, findViewById(R.id.act_picture));
         }
         catch (Exception e){
             Log.e("Put image", e.getMessage());
@@ -136,7 +141,8 @@ public class Picture extends AppCompatActivity {
     }
 
     public void saveImageData(){
-
+        DB myDB = new DB(this);
+        myDB.insertOrUpdateRow(new ImageData(imagePath, etLocation.getText().toString(), etComment.getText().toString()));
     }
 
     public Bitmap drawTextToBitmap(Bitmap bitmap, String gText) {
@@ -148,7 +154,7 @@ public class Picture extends AppCompatActivity {
         if(bitmapConfig == null)
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
 
-        // resource bitmaps are imutable, so we need to convert it to mutable one
+        // resource bitmaps are immutable, so we need to convert it to mutable one
         bitmap = bitmap.copy(bitmapConfig, true);
 
         Canvas canvas = new Canvas(bitmap);
@@ -170,5 +176,14 @@ public class Picture extends AppCompatActivity {
         canvas.drawText(gText, x, y, paint);
 
         return bitmap;
+    }
+
+    public void getImageData(){
+        DB myDB = new DB(this);
+        ImageData data = myDB.select(imagePath);
+        if(data != null) {
+            etComment.setText(data.getComment());
+            etLocation.setText(data.getLocation());
+        }
     }
 }
