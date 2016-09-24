@@ -67,8 +67,7 @@ public class Picture extends AppCompatActivity {
                 break;
             }
             case R.id.action_delete:{
-                File deletedFile = new File(imagePath);
-                Boolean isDelete = deletedFile.delete();
+                MyFiles.deleteFile(imagePath);
                 onBackPressed();
                 break;
             }

@@ -4,13 +4,15 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import java.io.File;
 
 public class AlbumNameDialog extends Dialog implements View.OnClickListener {
 
@@ -55,10 +57,16 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
 
         switch (id){
             case R.id.act_album_name_dialog_btnCreate:{
-                String name = etAlbumName.getText().toString().trim();
+                // Adding this string to make hebrew text to be LTR
+                String name = "\u200e" + etAlbumName.getText().toString().trim();
+
                 // Checking the user entered a valid name
                 if (name.isEmpty())
                     etAlbumName.setError("Please enter a name");
+                // Checking if the album name does not exist
+                else if(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator +
+                            context.getString(R.string.album_name) + File.separator + name).exists())
+                    etAlbumName.setError("This album already exists");
                 else
                     CreateAlbum(name);
                 break;
@@ -82,16 +90,8 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
 
     public void CreateAlbum(String name){
         Intent albumIntent = new Intent(context, Album.class);
-//        saveAlbumNameOnSharedPreference(name);
         MySharedPreferences.saveOnsharedPreference(R.string.album_name, context, name);
         context.startActivity(albumIntent);
         ((Activity) context).finish();
     }
-
-//    public void saveAlbumNameOnSharedPreference(String albumName){
-//        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_pref), Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPref.edit();
-//        editor.putString(context.getString(R.string.album_name), albumName);
-//        editor.commit();
-//    }
 }

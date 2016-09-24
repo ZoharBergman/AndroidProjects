@@ -9,11 +9,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/act_picture_toolbar"
-        android:background="@android:color/darker_gray" />
+        android:background="#424242" />
 
     <tempconverter.com.zohar.picturesalbums.MyImageView
-        android:layout_width="600dp"
-        android:layout_height="450dp"
+        android:layout_width="650dp"
+        android:layout_height="500dp"
 
         android:layout_centerInParent="true"
         android:id="@+id/act_picture_image"/>

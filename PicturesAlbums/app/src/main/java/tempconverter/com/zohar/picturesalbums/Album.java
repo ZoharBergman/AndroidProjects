@@ -1,7 +1,6 @@
 package tempconverter.com.zohar.picturesalbums;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,12 +11,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -27,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Album extends Activity implements View.OnClickListener{
+public class Album extends AppCompatActivity implements View.OnClickListener{
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int REQUEST_CAMERA_RESULT=201;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -37,8 +39,10 @@ public class Album extends Activity implements View.OnClickListener{
     private Uri fileUri;
     Button btnCamera;
     TableLayout tabImages;
+    Toolbar toolbar;
     static TextView txtAlbumName;
     static String albumName;
+    static String albumDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +59,26 @@ public class Album extends Activity implements View.OnClickListener{
         txtAlbumName = (TextView) findViewById(R.id.act_album_txtAlbumName);
         btnCamera = (Button) findViewById(R.id.act_album_btnStartCamera);
         tabImages = (TableLayout) findViewById(R.id.act_album_tabImages);
+        toolbar = (Toolbar) findViewById(R.id.act_album_toolbar);
 
         // Setting the album name from shared preference
         String albumName = MySharedPreferences.getDataFromSharedPreference(R.string.album_name, this);
         txtAlbumName.setText(albumName);
         txtAlbumName.setPaintFlags(txtAlbumName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
+        // Creating album directory storage
+        createAlbumDirectory();
+
         // Setting images table
         setImagesTable();
 
         // Setting click listener
         btnCamera.setOnClickListener(this);
+
+        // Setting toolbar
+        toolbar.setTitle("");
+//        toolbar.setNavigationIcon(R.mipmap.ic_keyboard_return_white_48dp);
+        setSupportActionBar(toolbar);
     }
 
     @Override
@@ -85,6 +98,32 @@ public class Album extends Activity implements View.OnClickListener{
                 finish();
                 break;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_album, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_delete: {
+                Boolean isDelete = MyFiles.deleteFile(albumDir);
+                onBackPressed();
+                break;
+            }
+            default: {
+                onBackPressed();
+                break;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void startCamera(){
@@ -140,35 +179,13 @@ public class Album extends Activity implements View.OnClickListener{
 
     private static File getOutputMediaFile(int type){
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            // Getting the external storage directory
-            File mediaStorageDir = new File(
-                    Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES), albumName);
-
-            // Create the storage directory (if it does not exist) of the application album
-            if (!mediaStorageDir.exists()) {
-                if (!mediaStorageDir.mkdirs()) {
-                    Log.d("Create directory", "failed to create directory");
-                    return null;
-                }
-            }
-
-            mediaStorageDir = new File(mediaStorageDir.getPath(), txtAlbumName.getText().toString());
-
-            // Create the storage directory of the new album
-            if (!mediaStorageDir.exists()) {
-                if (!mediaStorageDir.mkdirs()) {
-                    Log.d("Create directory", "failed to create directory");
-                    return null;
-                }
-            }
-
             // Create a media file name
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             File mediaFile;
             if (type == MEDIA_TYPE_IMAGE) {
-                mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + "_" + timeStamp + ".jpg");
+                mediaFile = new File(albumDir + File.separator + "IMG_" + "_" + timeStamp + ".jpg");
             } else if (type == MEDIA_TYPE_VIDEO) {
-                mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                mediaFile = new File(albumDir + File.separator +
                         "VID_" + txtAlbumName.getText().toString() + "_" + timeStamp + ".mp4");
             } else {
                 return null;
@@ -190,9 +207,7 @@ public class Album extends Activity implements View.OnClickListener{
 
     public void setImagesTable(){
         // Getting the images from directory
-        ArrayList<File> alImages = MyFiles.getFiles(new File
-                (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) +
-                        File.separator + getString(R.string.album_name) + File.separator + txtAlbumName.getText().toString()));
+        ArrayList<File> alImages = MyFiles.getFiles(new File(albumDir));
 
         if(alImages == null)
             return;
@@ -244,6 +259,37 @@ public class Album extends Activity implements View.OnClickListener{
         DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
         int px = Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
         return px;
+    }
+
+    public Boolean createAlbumDirectory() {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            // Getting the external storage directory
+            File mediaStorageDir = new File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), albumName);
+
+            // Create the storage directory (if it does not exist) of the application album
+            if (!mediaStorageDir.exists()) {
+                if (!mediaStorageDir.mkdirs()) {
+                    Log.d("Create directory", "failed to create directory");
+                    return false;
+                }
+            }
+
+            mediaStorageDir = new File(mediaStorageDir.getPath(), txtAlbumName.getText().toString());
+
+            // Create the storage directory (if it does not exist) of the album
+            if (!mediaStorageDir.exists()) {
+                if (!mediaStorageDir.mkdirs()) {
+                    Log.d("Create directory", "failed to create directory");
+                    return false;
+                }
+            }
+
+            albumDir = mediaStorageDir.getPath();
+            return true;
+        }
+
+        return false;
     }
 }
 

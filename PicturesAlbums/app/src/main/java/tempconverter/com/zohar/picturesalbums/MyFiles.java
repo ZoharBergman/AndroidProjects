@@ -66,4 +66,16 @@ public class MyFiles {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
+
+    public static Boolean deleteFile(String path){
+        File deletedFile = new File(path);
+        if (deletedFile.isDirectory()){
+                String[] children = deletedFile.list();
+                for (int i = 0; i < children.length; i++)
+                {
+                    new File(path, children[i]).delete();
+                }
+        }
+        return deletedFile.delete();
+    }
 }
