@@ -16,13 +16,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class Picture extends AppCompatActivity {
-    MyImageView image;
+    ImageView image;
     EditText etComment;
     EditText etLocation;
     String imagePath;
@@ -41,7 +42,7 @@ public class Picture extends AppCompatActivity {
     public void bindUI(){
         try {
             // Binding widgets
-            image = (MyImageView) findViewById(R.id.act_picture_image);
+            image = (ImageView) findViewById(R.id.act_picture_image);
             etComment = (EditText) findViewById(R.id.act_picture_etComment);
             etLocation = (EditText) findViewById(R.id.act_picture_etLocation);
             toolbar = (Toolbar) findViewById(R.id.act_picture_toolbar);
