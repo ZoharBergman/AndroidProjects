@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/act_picture"
     tools:context="tempconverter.com.zohar.picturesalbums.Picture">
 
     <android.support.v7.widget.Toolbar
@@ -11,12 +12,27 @@
         android:id="@+id/act_picture_toolbar"
         android:background="#424242" />
 
-    <tempconverter.com.zohar.picturesalbums.MyImageView
-        android:layout_width="650dp"
-        android:layout_height="500dp"
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/act_picture_etLocation"
+        android:hint="Add location..."
+        android:background="@android:color/transparent"
+        android:layout_marginTop="70dp"/>
 
+    <tempconverter.com.zohar.picturesalbums.MyImageView
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
         android:layout_centerInParent="true"
         android:id="@+id/act_picture_image"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/act_picture_etComment"
+        android:hint="Add comment..."
+        android:background="@android:color/transparent"
+        android:layout_marginTop="480dp"/>
 
 
 </RelativeLayout>

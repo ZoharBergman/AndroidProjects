@@ -4,4 +4,7 @@
     <string name="image">image</string>
     <string name="shared_pref">shared_pref</string>
     <string name="title_activity_albums_list">AlbumsList</string>
+    <string name="speech_prompt">Say your comment&#8230;</string>
+    <string name="speech_not_supported">Sorry! Your device does not support speech input</string>
+    <string name="tap_on_mic">Tap on mic to speak</string>
 </resources>

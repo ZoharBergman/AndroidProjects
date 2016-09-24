@@ -10,8 +10,8 @@ import android.widget.TextView;
  * Created by Zohar on 17/09/2016.
  */
 public class MyImageView extends ImageButton {
-    private TextView location;
-    private TextView comment;
+    private String location;
+    private String comment;
 
     public MyImageView(Context context, AttributeSet attrs){
         super(context, attrs);
@@ -19,10 +19,14 @@ public class MyImageView extends ImageButton {
     }
 
     public void setLocation(String location){
-        this.location.setText(location);
+        this.location = location;
     }
 
     public void setComment(String comment){
-        this.comment.setText(comment);
+        this.comment = comment;
+    }
+
+    public String getComment(){
+        return this.comment;
     }
 }

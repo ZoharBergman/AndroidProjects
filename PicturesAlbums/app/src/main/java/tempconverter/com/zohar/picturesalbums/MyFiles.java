@@ -7,8 +7,10 @@ import android.media.ExifInterface;
 import android.util.Log;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Created by Zohar on 23/09/2016.
@@ -77,5 +79,11 @@ public class MyFiles {
                 }
         }
         return deletedFile.delete();
+    }
+
+    public static String getFileDate(String path){
+        File file = new File(path);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(new Date(file.lastModified()));
     }
 }
