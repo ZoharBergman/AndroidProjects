@@ -18,6 +18,7 @@
         android:id="@+id/act_picture_etLocation"
         android:hint="Add location..."
         android:background="@android:color/transparent"
+        android:layout_alignParentRight="true"
         android:layout_marginTop="70dp"/>
 
     <ImageView
@@ -31,6 +32,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/act_picture_etComment"
         android:hint="Add comment..."
+        android:layout_alignParentRight="true"
         android:background="@android:color/transparent"
         android:layout_marginTop="490dp"/>
 

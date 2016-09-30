@@ -1,6 +1,5 @@
 package tempconverter.com.zohar.picturesalbums;
 
-import android.*;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,10 +27,11 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class Picture extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
@@ -42,7 +43,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
     Toolbar toolbar;
     Location mLastLocation;
     GoogleApiClient mGoogleApiClient;
-    Boolean is_location_permitted;
+    String location;
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private final int REQ_CODE_LOCATION = 200;
@@ -57,7 +58,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+        disconnectGoogleApiClient();
         super.onStop();
     }
 
@@ -85,14 +86,6 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
             // Setting keyboard
             new KeyboardSetting(this, findViewById(R.id.act_picture));
-
-            // Create a GoogleApiClient instance
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .enableAutoManage(this /* FragmentActivity */,
-                            this /* OnConnectionFailedListener */)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .build();
         }
         catch (Exception e){
             Log.e("Put image", e.getMessage());
@@ -103,9 +96,15 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
     public void onBackPressed() {
         super.onBackPressed();
         saveImageData();
+        disconnectGoogleApiClient();
         Intent albumIntent = new Intent(this, Album.class);
         startActivity(albumIntent);
         finish();
+    }
+
+    public void disconnectGoogleApiClient(){
+        if (mGoogleApiClient != null)
+            mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -143,10 +142,15 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
     }
 
     private void getLocation(){
-        if(MyPermissions.checkPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+        // Create a GoogleApiClient instance
+        if(mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
             mGoogleApiClient.connect();
-        else
-            MyPermissions.askPermission(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, this, REQ_CODE_LOCATION);
+        }
     }
 
     @Override
@@ -154,7 +158,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         switch (requestCode) {
             case REQ_CODE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    is_location_permitted = true;
+                    getLocation();
                 }
                 break;
             }
@@ -194,7 +198,9 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
     public void saveImageData(){
         DB myDB = new DB(this);
-        myDB.insertOrUpdateRow(new ImageData(imagePath, etLocation.getText().toString(), etComment.getText().toString()));
+        myDB.insertOrUpdateRow(new ImageData(imagePath,
+                                             etLocation.getText().toString().replaceAll("\u200E",""),
+                                             etComment.getText().toString().replaceAll("\u200E","")));
     }
 
     public Bitmap drawTextToBitmap(Bitmap bitmap, String gText) {
@@ -234,27 +240,62 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         DB myDB = new DB(this);
         ImageData data = myDB.select(imagePath);
         if(data != null) {
-            etComment.setText("\u200e" + data.getComment());
-            etLocation.setText("\u200e" + data.getLocation());
+            if(!data.getComment().replaceAll("\u200E","").trim().isEmpty())
+                etComment.setText("\u200e" + data.getComment());
+            if(!data.getLocation().replaceAll("\u200E","").trim().isEmpty())
+                etLocation.setText("\u200e" + data.getLocation());
         }
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     @Override
     public void onConnected(Bundle connectionHint) {
+        // Checking if there is a permission to use location
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                if (mLastLocation != null) {
-                }
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                MyPermissions.askPermission(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, this, REQ_CODE_LOCATION);
+                return;
             }
+            else
+                // Getting the last location
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         }
-        else {
+        else
+            // Getting the last location
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+
+        if(mLastLocation == null)
+            Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+        else {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<android.location.Address> addresses;
+            try {
+                // Decoding the cordinates into address
+                addresses = geocoder.getFromLocation(mLastLocation.getLatitude(),mLastLocation.getLongitude(),1);
+                android.location.Address address = addresses.get(0);
+                ArrayList<String> addressFragments = new ArrayList<String>();
+
+                // Fetch the address lines using getAddressLine and join them
+                location = "";
+                for(int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                    //addressFragments.add(address.getAddressLine(i));
+                    location += address.getAddressLine(i);
+                }
+
+                etLocation.setText("\u200E" + location);
+
+            } catch (IllegalArgumentException illegalArgumentException) {
+                // Catch invalid latitude or longitude values.
+                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+            } catch (IOException ioException) {
+                // Catch network or other I/O problems.
+                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+
+            }
         }
     }
 
