@@ -19,6 +19,8 @@
         android:hint="Add location..."
         android:background="@android:color/transparent"
         android:layout_alignParentRight="true"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         android:layout_marginTop="70dp"/>
 
     <ImageView
@@ -26,10 +28,12 @@
         android:layout_height="350dp"
         android:layout_centerInParent="true"
         android:id="@+id/act_picture_image"/>
-
+`
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         android:id="@+id/act_picture_etComment"
         android:hint="Add comment..."
         android:layout_alignParentRight="true"

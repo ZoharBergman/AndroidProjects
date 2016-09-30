@@ -1,9 +1,12 @@
 package tempconverter.com.zohar.picturesalbums;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import java.io.File;

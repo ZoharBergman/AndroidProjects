@@ -2,6 +2,7 @@ package tempconverter.com.zohar.picturesalbums;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -16,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -124,8 +126,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
                 break;
             }
             case R.id.action_delete:{
-                MyFiles.deleteFile(imagePath);
-                onBackPressed();
+                dialogIsDelete();
                 break;
             }
             case R.id.action_location:{
@@ -172,7 +173,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
 
         if(mLastLocation == null)
-            Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Unable to reach location. Make sure the location is on.", Toast.LENGTH_LONG).show();
         else {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             List<android.location.Address> addresses;
@@ -189,14 +190,14 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
                     location += address.getAddressLine(i);
                 }
 
-                etLocation.setText("\u200E" + location);
+                etLocation.setText(location);
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // Catch invalid latitude or longitude values.
-                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Unable to reach location. Make sure the location is on.", Toast.LENGTH_LONG).show();
             } catch (IOException ioException) {
                 // Catch network or other I/O problems.
-                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Unable to reach location. Make sure the location is on.", Toast.LENGTH_LONG).show();
 
             }
         }
@@ -237,7 +238,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
                     ArrayList<String> result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    etComment.setText("\u200e" + result.get(0));
+                    etComment.setText(result.get(0));
                 }
                 break;
             }
@@ -289,11 +290,32 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         DB myDB = new DB(this);
         ImageData data = myDB.select(imagePath);
         if(data != null) {
-            if(!data.getComment().replaceAll("\u200E","").trim().isEmpty())
-                etComment.setText("\u200e" + data.getComment());
-            if(!data.getLocation().replaceAll("\u200E","").trim().isEmpty())
-                etLocation.setText("\u200e" + data.getLocation());
+            if(!data.getComment().trim().isEmpty())
+                etComment.setText(data.getComment());
+            if(!data.getLocation().trim().isEmpty())
+                etLocation.setText(data.getLocation());
         }
+    }
+
+    public void dialogIsDelete(){
+        // Creating a dialog to check if the user is sure
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete the picture?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                MyFiles.deleteFile(imagePath);
+                onBackPressed();
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {}
+        });
+
+        builder.show();
     }
 
     @Override

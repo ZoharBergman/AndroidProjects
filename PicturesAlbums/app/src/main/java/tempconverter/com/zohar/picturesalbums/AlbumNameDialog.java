@@ -42,6 +42,15 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
         etAlbumName = (EditText) findViewById(R.id.act_album_name_dialog_etAlbumName);
         llDialogView = (LinearLayout) findViewById(R.id.album_name_dialog);
 
+        // Opening keyboard
+        etAlbumName.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager keyboard = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(etAlbumName, 0);
+            }
+        },100);
+
         setCancelable(false);
 
         // Setting click listeners

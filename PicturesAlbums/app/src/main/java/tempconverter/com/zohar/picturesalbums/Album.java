@@ -1,6 +1,7 @@
 package tempconverter.com.zohar.picturesalbums;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -28,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Album extends AppCompatActivity implements View.OnClickListener{
+public class Album extends AppCompatActivity implements View.OnClickListener, IImageAsyncTaskLoaderListener{
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int REQUEST_CAMERA_RESULT=201;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -39,6 +42,7 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
     Button btnCamera;
     TableLayout tabImages;
     Toolbar toolbar;
+    ProgressBar progressBar;
     static TextView txtAlbumName;
     static String albumName;
     static String albumDir;
@@ -59,6 +63,7 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
         btnCamera = (Button) findViewById(R.id.act_album_btnStartCamera);
         tabImages = (TableLayout) findViewById(R.id.act_album_tabImages);
         toolbar = (Toolbar) findViewById(R.id.act_album_toolbar);
+        progressBar = (ProgressBar) findViewById(R.id.act_album_progressBar);
 
         // Setting the album name from shared preference
         String albumName = MySharedPreferences.getDataFromSharedPreference(R.string.album_name, this);
@@ -69,7 +74,9 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
         createAlbumDirectory();
 
         // Setting images table
-        setImagesTable();
+        //setImagesTable();
+        ImagesTableAsyncLoader loader = new ImagesTableAsyncLoader(tabImages, albumDir, this, this);
+        loader.execute();
 
         // Setting click listener
         btnCamera.setOnClickListener(this);
@@ -111,8 +118,9 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
 
         switch (id) {
             case R.id.action_delete: {
-                Boolean isDelete = MyFiles.deleteFile(albumDir);
-                onBackPressed();
+                //Boolean isDelete = MyFiles.deleteFile(albumDir);
+                //onBackPressed();
+                dialogIsDelete();
                 break;
             }
             default: {
@@ -287,6 +295,33 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
         }
 
         return false;
+    }
+
+    public void dialogIsDelete(){
+        // Creating a dialog to check if the user is sure
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to delete '" + txtAlbumName.getText() + "' album?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                MyFiles.deleteFile(albumDir);
+                onBackPressed();
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {}
+        });
+
+        builder.show();
+    }
+
+    @Override
+    public void didFinishLoadingImage() {
+        // Disappearing the progress bar
+        progressBar.setVisibility(View.GONE);
     }
 }
 
