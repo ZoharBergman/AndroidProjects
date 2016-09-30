@@ -40,7 +40,7 @@ public class AlbumsList extends ListActivity implements  AdapterView.OnItemClick
                                                                                 File.separator + getString(R.string.album_name)));
 
         // Checking if there are albums
-        if (fileAlbums.size() == 0) {
+        if (fileAlbums == null || fileAlbums.size() == 0) {
             Toast.makeText(this, "No albums are available", Toast.LENGTH_LONG).show();
             onBackPressed();
         }

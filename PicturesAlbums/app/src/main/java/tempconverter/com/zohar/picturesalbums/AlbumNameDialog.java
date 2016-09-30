@@ -57,8 +57,7 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
 
         switch (id){
             case R.id.act_album_name_dialog_btnCreate:{
-                // Adding this string to make hebrew text to be LTR
-                String name = "\u200e" + etAlbumName.getText().toString().trim();
+                String name = etAlbumName.getText().toString().trim();
 
                 // Checking the user entered a valid name
                 if (name.isEmpty())
@@ -67,8 +66,11 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
                 else if(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator +
                             context.getString(R.string.album_name) + File.separator + name).exists())
                     etAlbumName.setError("This album already exists");
-                else
+                else {
+                    // Adding this string to make hebrew text to be LTR
+                    name = "\u200e" + name;
                     CreateAlbum(name);
+                }
                 break;
             }
             case R.id.act_album_name_dialog_btnCancel:{

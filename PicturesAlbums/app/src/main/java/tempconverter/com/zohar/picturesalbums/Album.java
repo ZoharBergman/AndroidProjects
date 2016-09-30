@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -77,7 +76,6 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
 
         // Setting toolbar
         toolbar.setTitle("");
-//        toolbar.setNavigationIcon(R.mipmap.ic_keyboard_return_white_48dp);
         setSupportActionBar(toolbar);
     }
 
@@ -127,26 +125,25 @@ public class Album extends AppCompatActivity implements View.OnClickListener{
     }
 
     public void startCamera(){
-        if(checkPermission())
+        // Checking if there is a permission to use the camera
+        if(MyPermissions.checkPermission(this, Manifest.permission.CAMERA))
             getPic();
         else {
-            // Asking a permission
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_CAMERA_RESULT);
+            // Asking permission to use the camera
+            MyPermissions.askPermission(new String[]{Manifest.permission.CAMERA}, this, REQUEST_CAMERA_RESULT);
         }
     }
 
-    public boolean checkPermission() {
-        // Checking if the version of the cellphone is 23+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            // In case the version is 23+, we should ask from the user a permission to use the camera
-            // Checking if the permission was already granted
-            if (Album.this.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                Album.this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                Album.this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                return false;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CAMERA_RESULT: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getPic();
+                }
+                break;
+            }
         }
-        return true;
     }
 
     public void getPic(){

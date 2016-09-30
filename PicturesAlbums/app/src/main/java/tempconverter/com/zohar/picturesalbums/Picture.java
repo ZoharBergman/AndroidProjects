@@ -1,15 +1,21 @@
 package tempconverter.com.zohar.picturesalbums;
 
+import android.*;
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,17 +25,27 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class Picture extends AppCompatActivity {
+public class Picture extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks {
     ImageView image;
     EditText etComment;
     EditText etLocation;
     String imagePath;
     Toolbar toolbar;
+    Location mLastLocation;
+    GoogleApiClient mGoogleApiClient;
+    Boolean is_location_permitted;
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
+    private final int REQ_CODE_LOCATION = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +53,12 @@ public class Picture extends AppCompatActivity {
         setContentView(R.layout.activity_picture);
 
         bindUI();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     public void bindUI(){
@@ -59,9 +81,18 @@ public class Picture extends AppCompatActivity {
 
             // Setting image data (location and comment)
             getImageData();
+            etComment.setPaintFlags(etComment.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
             // Setting keyboard
             new KeyboardSetting(this, findViewById(R.id.act_picture));
+
+            // Create a GoogleApiClient instance
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this /* FragmentActivity */,
+                            this /* OnConnectionFailedListener */)
+                    .addApi(Drive.API)
+                    .addScope(Drive.SCOPE_FILE)
+                    .build();
         }
         catch (Exception e){
             Log.e("Put image", e.getMessage());
@@ -99,6 +130,7 @@ public class Picture extends AppCompatActivity {
                 break;
             }
             case R.id.action_location:{
+                getLocation();
                 break;
             }
             default:{
@@ -108,6 +140,25 @@ public class Picture extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void getLocation(){
+        if(MyPermissions.checkPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+            mGoogleApiClient.connect();
+        else
+            MyPermissions.askPermission(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, this, REQ_CODE_LOCATION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQ_CODE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    is_location_permitted = true;
+                }
+                break;
+            }
+        }
     }
 
     private void promptSpeechInput() {
@@ -133,7 +184,7 @@ public class Picture extends AppCompatActivity {
 
                     ArrayList<String> result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    etComment.setText(result.get(0));
+                    etComment.setText("\u200e" + result.get(0));
                 }
                 break;
             }
@@ -183,8 +234,32 @@ public class Picture extends AppCompatActivity {
         DB myDB = new DB(this);
         ImageData data = myDB.select(imagePath);
         if(data != null) {
-            etComment.setText(data.getComment());
-            etLocation.setText(data.getLocation());
+            etComment.setText("\u200e" + data.getComment());
+            etLocation.setText("\u200e" + data.getLocation());
         }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                if (mLastLocation != null) {
+                }
+            }
+        }
+        else {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 }

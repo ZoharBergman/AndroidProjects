@@ -3,20 +3,23 @@
     package="tempconverter.com.zohar.picturesalbums">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SET_DEBUG_APP" />
+
+    <meta-data android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_linked_camera_white_48dp"
         android:label="@string/app_name"
-        android:screenOrientation="portrait"
         android:supportsRtl="false">
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,17 +28,21 @@
         </activity>
         <activity
             android:name=".Album"
-            android:theme="@style/PictureTheme" />
+            android:theme="@style/PictureTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".AlbumNameDialog"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".Picture"
-            android:theme="@style/PictureTheme" />
+            android:theme="@style/PictureTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".AlbumsList"
             android:theme="@style/AppTheme"
-            android:label="@string/title_activity_albums_list"></activity>
+            android:label="@string/title_activity_albums_list"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
