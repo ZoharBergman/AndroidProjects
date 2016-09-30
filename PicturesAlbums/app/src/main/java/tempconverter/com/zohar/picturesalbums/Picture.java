@@ -143,13 +143,62 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
     private void getLocation(){
         // Create a GoogleApiClient instance
-        if(mGoogleApiClient == null) {
+        if(mGoogleApiClient != null)
+            findLocation();
+        else{
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
                     .build();
             mGoogleApiClient.connect();
+        }
+    }
+
+    public void findLocation(){
+        // Checking if there is a permission to use location
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                MyPermissions.askPermission(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, this, REQ_CODE_LOCATION);
+                return;
+            }
+            else
+                // Getting the last location
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        }
+        else
+            // Getting the last location
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+
+        if(mLastLocation == null)
+            Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+        else {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<android.location.Address> addresses;
+            try {
+                // Decoding the cordinates into address
+                addresses = geocoder.getFromLocation(mLastLocation.getLatitude(),mLastLocation.getLongitude(),1);
+                android.location.Address address = addresses.get(0);
+                ArrayList<String> addressFragments = new ArrayList<String>();
+
+                // Fetch the address lines using getAddressLine and join them
+                location = "";
+                for(int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                    //addressFragments.add(address.getAddressLine(i));
+                    location += address.getAddressLine(i);
+                }
+
+                etLocation.setText("\u200E" + location);
+
+            } catch (IllegalArgumentException illegalArgumentException) {
+                // Catch invalid latitude or longitude values.
+                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+            } catch (IOException ioException) {
+                // Catch network or other I/O problems.
+                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
+
+            }
         }
     }
 
@@ -253,50 +302,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
     @Override
     public void onConnected(Bundle connectionHint) {
-        // Checking if there is a permission to use location
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                MyPermissions.askPermission(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, this, REQ_CODE_LOCATION);
-                return;
-            }
-            else
-                // Getting the last location
-                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        }
-        else
-            // Getting the last location
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-
-        if(mLastLocation == null)
-            Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
-        else {
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            List<android.location.Address> addresses;
-            try {
-                // Decoding the cordinates into address
-                addresses = geocoder.getFromLocation(mLastLocation.getLatitude(),mLastLocation.getLongitude(),1);
-                android.location.Address address = addresses.get(0);
-                ArrayList<String> addressFragments = new ArrayList<String>();
-
-                // Fetch the address lines using getAddressLine and join them
-                location = "";
-                for(int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                    //addressFragments.add(address.getAddressLine(i));
-                    location += address.getAddressLine(i);
-                }
-
-                etLocation.setText("\u200E" + location);
-
-            } catch (IllegalArgumentException illegalArgumentException) {
-                // Catch invalid latitude or longitude values.
-                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
-            } catch (IOException ioException) {
-                // Catch network or other I/O problems.
-                Toast.makeText(this, "Unable to reach location. Make sure the location is on", Toast.LENGTH_LONG).show();
-
-            }
-        }
+        findLocation();
     }
 
     @Override
