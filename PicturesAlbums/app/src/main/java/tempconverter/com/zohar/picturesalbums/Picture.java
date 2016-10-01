@@ -179,15 +179,13 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             List<android.location.Address> addresses;
             try {
-                // Decoding the cordinates into address
+                // Decoding the coordinates into address
                 addresses = geocoder.getFromLocation(mLastLocation.getLatitude(),mLastLocation.getLongitude(),1);
                 android.location.Address address = addresses.get(0);
-                ArrayList<String> addressFragments = new ArrayList<String>();
 
                 // Fetch the address lines using getAddressLine and join them
                 location = "";
                 for(int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                    //addressFragments.add(address.getAddressLine(i));
                     location += address.getAddressLine(i);
                 }
 
