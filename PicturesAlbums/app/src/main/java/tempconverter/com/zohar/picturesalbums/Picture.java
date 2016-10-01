@@ -2,6 +2,7 @@ package tempconverter.com.zohar.picturesalbums;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -298,6 +299,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
     }
 
     public void dialogIsDelete(){
+        final Context context = this;
         // Creating a dialog to check if the user is sure
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to delete the picture?");
@@ -305,6 +307,10 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                // Delete data from DB
+                DB myDB = new DB(context);
+                myDB.delete(imagePath);
+                // Delete the image
                 MyFiles.deleteFile(imagePath);
                 onBackPressed();
             }

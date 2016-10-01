@@ -1,13 +1,10 @@
 package tempconverter.com.zohar.picturesalbums;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * Created by Zohar on 30/09/2016.
@@ -26,10 +23,7 @@ public abstract class MyPermissions implements View.OnClickListener{
     }
 
     public static void askPermission(String[] permissions, Context context, int request_result){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity)context, Manifest.permission.CAMERA))
-                Toast.makeText(context, "You should accept the permission for using this app", Toast.LENGTH_SHORT).show();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             ((Activity)context).requestPermissions(permissions, request_result);
-        }
     }
 }

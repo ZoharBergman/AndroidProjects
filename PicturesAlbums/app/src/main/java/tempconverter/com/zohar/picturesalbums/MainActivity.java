@@ -54,7 +54,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case REQUEST_READ_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     is_permmited = true;
-                    Toast.makeText(this,"Please enter your action",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"Please enter your action.",Toast.LENGTH_SHORT).show();
                 }
                 break;
             }

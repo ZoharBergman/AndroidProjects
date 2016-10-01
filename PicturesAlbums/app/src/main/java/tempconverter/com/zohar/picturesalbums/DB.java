@@ -83,4 +83,17 @@ public class DB extends SQLiteOpenHelper{
 
         return null;
     }
+
+    public void delete(String image_name){
+        try {
+            // Getting the DB
+            SQLiteDatabase db = this.getReadableDatabase();
+            // Creating the query and execute it
+            String query = "DELETE FROM " + DB_TABLE_IMAGE_DATA + " WHERE image_name = \"" + image_name + "\"";
+            db.execSQL(query);
+        }
+        catch (SQLException ex){
+            Log.e("DB", ex.getMessage());
+        }
+    }
 }

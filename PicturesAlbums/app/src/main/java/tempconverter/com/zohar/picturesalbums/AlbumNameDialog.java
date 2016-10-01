@@ -73,7 +73,7 @@ public class AlbumNameDialog extends Dialog implements View.OnClickListener {
                     etAlbumName.setError("Please enter a name");
                 // Checking if the album name does not exist
                 else if(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator +
-                            context.getString(R.string.album_name) + File.separator + name).exists())
+                            context.getString(R.string.album_name) + File.separator + "\u200e" + name).exists())
                     etAlbumName.setError("This album already exists");
                 else {
                     // Adding this string to make hebrew text to be LTR
