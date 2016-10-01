@@ -73,8 +73,7 @@ public class Album extends AppCompatActivity implements View.OnClickListener, II
         // Creating album directory storage
         createAlbumDirectory();
 
-        // Setting images table
-        //setImagesTable();
+        // Setting images table asynchronously
         ImagesTableAsyncLoader loader = new ImagesTableAsyncLoader(tabImages, albumDir, this, this);
         loader.execute();
 
