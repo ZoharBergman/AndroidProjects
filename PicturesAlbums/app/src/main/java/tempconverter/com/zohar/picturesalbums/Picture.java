@@ -186,7 +186,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
                 // Fetch the address lines using getAddressLine and join them
                 location = "";
                 for(int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                    location += address.getAddressLine(i);
+                    location += address.getAddressLine(i) + " ";
                 }
 
                 etLocation.setText(location);
