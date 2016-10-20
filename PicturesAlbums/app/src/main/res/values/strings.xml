@@ -7,4 +7,7 @@
     <string name="speech_prompt">Say your comment&#8230;</string>
     <string name="speech_not_supported">Sorry! Your device does not support speech input</string>
     <string name="tap_on_mic">Tap on mic to speak</string>
+    <string name="title_activity_map">Map</string>
+    <string name="pic_location_lat">pic_location_lat</string>
+    <string name="pic_location_long">pic_location_long</string>
 </resources>

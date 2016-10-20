@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
@@ -132,6 +133,10 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
             }
             case R.id.action_location:{
                 getLocation();
+                break;
+            }
+            case R.id.action_map:{
+                showAddressOnMap();
                 break;
             }
             default:{
@@ -320,6 +325,33 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         });
 
         builder.show();
+    }
+
+    public void showAddressOnMap(){
+        if(etLocation.getText().toString().trim().isEmpty())
+            Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show();
+        else{
+            try {
+                // Getting the address data of the location of the pic
+                List<android.location.Address> addressList =
+                        new Geocoder(this).getFromLocationName(etLocation.getText().toString(), 1);
+                if (addressList.size() == 0 || addressList == null)
+                    Toast.makeText(this, "Please enter a valid location address", Toast.LENGTH_SHORT).show();
+                else{
+                    saveImageData();
+                    disconnectGoogleApiClient();
+                    // Putting the latitude and longitude of the address in an intent
+                    Intent mapIntent = new Intent(this, Map.class);
+                    mapIntent.putExtra(getString(R.string.pic_location_lat), addressList.get(0).getLatitude());
+                    mapIntent.putExtra(getString(R.string.pic_location_long), addressList.get(0).getLongitude());
+                    // Going to the map activity
+                    startActivity(mapIntent);
+                    //finish();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
