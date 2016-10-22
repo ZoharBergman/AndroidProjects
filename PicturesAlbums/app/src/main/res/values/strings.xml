@@ -10,4 +10,7 @@
     <string name="title_activity_map">Map</string>
     <string name="pic_location_lat">pic_location_lat</string>
     <string name="pic_location_long">pic_location_long</string>
+    <string name="facebook_app_id">552388864961816</string>
+    <string name="facebook_pic">facebook_pic</string>
+    <string name="pic_comment">pic_comment</string>
 </resources>

@@ -27,10 +27,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
@@ -48,6 +46,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
     Location mLastLocation;
     GoogleApiClient mGoogleApiClient;
     String location;
+    Bitmap bm;
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private final int REQ_CODE_LOCATION = 200;
@@ -81,7 +80,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
 
             // Setting image
             imagePath = (String) getIntent().getExtras().get(getString(R.string.image));
-            Bitmap bm = drawTextToBitmap(MyFiles.getImageFromFile(imagePath), MyFiles.getFileDate(imagePath));
+            bm = drawTextToBitmap(MyFiles.getImageFromFile(imagePath), MyFiles.getFileDate(imagePath));
             image.setImageBitmap(bm);
 
             // Setting image data (location and comment)
@@ -137,6 +136,10 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
             }
             case R.id.action_map:{
                 showAddressOnMap();
+                break;
+            }
+            case R.id.action_facebook:{
+                uploadPicToFacebook();
                 break;
             }
             default:{
@@ -346,12 +349,21 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
                     mapIntent.putExtra(getString(R.string.pic_location_long), addressList.get(0).getLongitude());
                     // Going to the map activity
                     startActivity(mapIntent);
-                    //finish();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void uploadPicToFacebook(){
+        saveImageData();
+        disconnectGoogleApiClient();
+        // Going to the facebook activity
+        Intent facebookIntent = new Intent(this, Facebook.class);
+        facebookIntent.putExtra(getString(R.string.facebook_pic), imagePath);
+        facebookIntent.putExtra(getString(R.string.pic_comment), etComment.getText().toString());
+        startActivity(facebookIntent);
     }
 
     @Override

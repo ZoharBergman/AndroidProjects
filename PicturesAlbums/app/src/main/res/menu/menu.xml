@@ -2,29 +2,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_map"
+        android:id="@+id/action_facebook"
         android:orderInCategory="1"
+        android:title="Facebook"
+        android:icon="@mipmap/facebook_96"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_map"
+        android:orderInCategory="2"
         android:title="Map"
         android:icon="@mipmap/ic_map_white_48dp"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_comment"
-        android:orderInCategory="1"
+        android:orderInCategory="3"
         android:title="Comment"
         android:icon="@mipmap/ic_mic_white_48dp"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_location"
-        android:orderInCategory="2"
+        android:orderInCategory="4"
         android:title="location"
         android:icon="@mipmap/ic_location_on_white_48dp"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_delete"
-        android:orderInCategory="3"
+        android:orderInCategory="5"
         android:title="Delete"
         android:icon="@mipmap/ic_delete_white_48dp"
         app:showAsAction="always" />
