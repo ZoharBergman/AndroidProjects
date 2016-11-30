@@ -9,19 +9,23 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
+    android:background="@mipmap/main_background"
     tools:context="tempconverter.com.zohar.picturesalbums.MainActivity">
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Create Album"
-        android:layout_marginTop="250dp"
-        android:id="@+id/act_main_btnCreateAlbum"/>
+        android:layout_marginTop="460dp"
+        android:id="@+id/act_main_btnCreateAlbum"
+        android:background="@color/bright_foreground_disabled_material_dark" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="My Albums"
-        android:id="@+id/act_main_btnWatchAlbum"/>
+        android:layout_marginTop="10dp"
+        android:id="@+id/act_main_btnWatchAlbum"
+        android:background="@color/bright_foreground_disabled_material_dark"/>
 
 </LinearLayout>

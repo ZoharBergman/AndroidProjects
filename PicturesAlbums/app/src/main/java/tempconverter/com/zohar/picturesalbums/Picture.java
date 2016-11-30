@@ -27,7 +27,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-import com.google.android.gms.common.ConnectionResult;
+//import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Picture extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
+public class Picture extends AppCompatActivity implements //GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks {
     ImageView image;
     EditText etComment;
@@ -158,7 +158,7 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         else{
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
+//                    .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
                     .build();
             mGoogleApiClient.connect();
@@ -366,9 +366,9 @@ public class Picture extends AppCompatActivity implements GoogleApiClient.OnConn
         startActivity(facebookIntent);
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-    }
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//    }
 
     @Override
     public void onConnected(Bundle connectionHint) {
